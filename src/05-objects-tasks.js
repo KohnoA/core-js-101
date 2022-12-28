@@ -20,8 +20,10 @@
  *    console.log(r.height);      // => 20
  *    console.log(r.getArea());   // => 200
  */
-function Rectangle(/* width, height */) {
-  throw new Error('Not implemented');
+function Rectangle(width, height) {
+  this.width = width;
+  this.height = height;
+  this.getArea = () => this.width * this.height;
 }
 
 
@@ -35,8 +37,8 @@ function Rectangle(/* width, height */) {
  *    [1,2,3]   =>  '[1,2,3]'
  *    { width: 10, height : 20 } => '{"height":10,"width":20}'
  */
-function getJSON(/* obj */) {
-  throw new Error('Not implemented');
+function getJSON(obj) {
+  return JSON.stringify(obj);
 }
 
 
@@ -51,8 +53,8 @@ function getJSON(/* obj */) {
  *    const r = fromJSON(Circle.prototype, '{"radius":10}');
  *
  */
-function fromJSON(/* proto, json */) {
-  throw new Error('Not implemented');
+function fromJSON(proto, json) {
+  return Object.setPrototypeOf(JSON.parse(json), proto);
 }
 
 
@@ -111,32 +113,77 @@ function fromJSON(/* proto, json */) {
  */
 
 const cssSelectorBuilder = {
-  element(/* value */) {
-    throw new Error('Not implemented');
+  line: '',
+  element(value) {
+    if (this.line.includes('#') || this.line.includes('.') || this.line.includes(':') || this.line.includes('::') || this.line.includes('[')) {
+      throw new Error('Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element');
+    }
+    if (this.line !== '') {
+      throw new Error('Element, id and pseudo-element should not occur more then one time inside the selector');
+    }
+    const obj = {};
+    obj.line = `${this.line}${value}`;
+    return Object.setPrototypeOf(obj, this);
   },
 
-  id(/* value */) {
-    throw new Error('Not implemented');
+  id(value) {
+    if (this.line.includes('#')) {
+      throw new Error('Element, id and pseudo-element should not occur more then one time inside the selector');
+    }
+    if (this.line.includes('.') || this.line.includes(':') || this.line.includes('::') || this.line.includes('[')) {
+      throw new Error('Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element');
+    }
+    const obj = {};
+    obj.line = `${this.line}#${value}`;
+    return Object.setPrototypeOf(obj, this);
   },
 
-  class(/* value */) {
-    throw new Error('Not implemented');
+  class(value) {
+    if (this.line.includes(':') || this.line.includes('::') || this.line.includes('[')) {
+      throw new Error('Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element');
+    }
+    const obj = {};
+    obj.line = `${this.line}.${value}`;
+    return Object.setPrototypeOf(obj, this);
   },
 
-  attr(/* value */) {
-    throw new Error('Not implemented');
+  attr(value) {
+    if (this.line.includes(':') || this.line.includes('::')) {
+      throw new Error('Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element');
+    }
+    const obj = {};
+    obj.line = `${this.line}[${value}]`;
+    return Object.setPrototypeOf(obj, this);
   },
 
-  pseudoClass(/* value */) {
-    throw new Error('Not implemented');
+  pseudoClass(value) {
+    if (this.line.includes('::')) {
+      throw new Error('Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element');
+    }
+    const obj = {};
+    obj.line = `${this.line}:${value}`;
+    return Object.setPrototypeOf(obj, this);
   },
 
-  pseudoElement(/* value */) {
-    throw new Error('Not implemented');
+  pseudoElement(value) {
+    if (this.line.includes('::')) {
+      throw new Error('Element, id and pseudo-element should not occur more then one time inside the selector');
+    }
+    const obj = {};
+    obj.line = `${this.line}::${value}`;
+    return Object.setPrototypeOf(obj, this);
   },
 
-  combine(/* selector1, combinator, selector2 */) {
-    throw new Error('Not implemented');
+  combine(selector1, combinator, selector2) {
+    const obj = {};
+    obj.line = `${this.line}${selector1.stringify()} ${combinator} ${selector2.stringify()}`;
+    return Object.setPrototypeOf(obj, this);
+  },
+
+  stringify() {
+    const result = this.line;
+    this.line = '';
+    return result;
   },
 };
 
