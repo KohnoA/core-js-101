@@ -76,7 +76,7 @@ function isLeapYear(date) {
  */
 function timeSpanToString(startDate, endDate) {
   const date = new Date(endDate.getTime() - startDate.getTime());
-  const hours = String(date.getHours() - 3).padStart(2, 0);
+  const hours = String(date.getUTCHours()).padStart(2, 0);
   const min = String(date.getMinutes()).padStart(2, 0);
   const sec = String(date.getSeconds()).padStart(2, 0);
   const ms = String(date.getMilliseconds()).padStart(3, 0);
